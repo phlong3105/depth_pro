@@ -132,7 +132,7 @@ def create_model_and_transforms(
     )
 
     if config.checkpoint_uri is not None:
-        state_dict = torch.load(config.checkpoint_uri, map_location="cpu")
+        state_dict = torch.load(config.checkpoint_uri, map_location="cpu", weights_only=True)
         missing_keys, unexpected_keys = model.load_state_dict(
             state_dict=state_dict, strict=True
         )
@@ -228,7 +228,7 @@ class DepthPro(nn.Module):
 
         """
         _, _, H, W = x.shape
-        assert H == self.img_size and W == self.img_size
+        assert H == self.img_size and W == self.img_size, f"Input size must be {self.img_size}x{self.img_size}, but got {H}x{W}."
 
         encodings = self.encoder(x)
         features, features_0 = self.decoder(encodings)
@@ -277,7 +277,7 @@ class DepthPro(nn.Module):
                 mode=interpolation_mode,
                 align_corners=False,
             )
-
+        
         canonical_inverse_depth, fov_deg = self.forward(x)
         if f_px is None:
             f_px = 0.5 * W / torch.tan(0.5 * torch.deg2rad(fov_deg.to(torch.float)))

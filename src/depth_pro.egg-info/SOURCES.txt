@@ -4,7 +4,9 @@ CONTRIBUTING.md
 LICENSE
 README.md
 get_pretrained_models.sh
+my_predict.py
 pyproject.toml
+config/depth_pro.yaml
 data/depth-pro-teaser.jpg
 data/example.jpg
 src/depth_pro/__init__.py

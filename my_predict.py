@@ -28,9 +28,10 @@ def predict(args: argparse.Namespace):
     save_dir     = args.save_dir
     weights      = args.weights
     device       = mon.set_device(args.device)
-    imgsz        = args.imgsz[0]
+    imgsz        = args.imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
     resize       = args.resize
-    benchmark    = args.benchmark
+    benchmark    = False  # args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
@@ -82,6 +83,7 @@ def predict(args: argparse.Namespace):
                 total       = len(data_loader),
                 description = f"[bright_yellow] Predicting"
             ):
+                # Pre-process
                 meta           = datapoint.get("meta")
                 image_path     = mon.Path(meta["path"])
                 image, _, f_px = depth_pro.load_rgb(str(image_path))
@@ -94,31 +96,48 @@ def predict(args: argparse.Namespace):
                 focallength_px = outputs["focallength_px"]
                 timer.tock()
                 
+                # Post-process
+                depth   = depth.detach().cpu().numpy().squeeze()
+                depth   = (depth - depth.min()) / (depth.max() - depth.min())
+                depth_i = 1.0 - depth
+                
                 # Save
                 if save_image:
                     if use_fullpath:
-                        rel_path       = image_path.relative_path(data_name)
-                        parent_dir     = rel_path.parent.parent
-                        gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_g"
-                        color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_c"
+                        rel_path         = image_path.relative_path(data_name)
+                        parent_dir       = rel_path.parent.parent
+                        gray_save_dir    = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_g"
+                        color_save_dir   = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_c"
+                        gray_i_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_g_i"
+                        color_i_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_depth_pro_c_i"
                     else:
-                        gray_save_dir  = save_dir / data_name / "gray"
-                        color_save_dir = save_dir / data_name / "color"
+                        gray_save_dir    = save_dir / data_name / "gray"
+                        color_save_dir   = save_dir / data_name / "color"
+                        gray_i_save_dir  = save_dir / data_name / "gray_i"
+                        color_i_save_dir = save_dir / data_name / "color_i"
                     gray    = {
                         "file": gray_save_dir / image_path.name,
-                        "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
+                        "data": (depth * 255).astype(np.uint8),
+                    }
+                    gray_i  = {
+                        "file": gray_i_save_dir / image_path.name,
+                        "data": (depth_i * 255).astype(np.uint8),
                     }
                     color   = {
                         "file": color_save_dir / image_path.name,
                         "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                     }
+                    color_i = {
+                        "file": color_i_save_dir / image_path.name,
+                        "data": (cmap(depth_i)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
+                    }
                     results = []
                     if format in [2, "all"]:
-                        results = [gray, color]
+                        results = [gray, gray_i, color, color_i]
                     elif format in [0, "gray", "grayscale"]:
-                        results = [gray]
+                        results = [gray, gray_i]
                     elif format in [1, "color"]:
-                        results = [color]
+                        results = [color, color_i]
                     
                     for result in results:
                         output_path = result["file"]

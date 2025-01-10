@@ -116,19 +116,19 @@ def predict(args: argparse.Namespace):
                         gray_i_save_dir  = save_dir / data_name / "gray_i"
                         color_i_save_dir = save_dir / data_name / "color_i"
                     gray    = {
-                        "file": gray_save_dir / image_path.name,
+                        "file": gray_save_dir / f"{image_path.stem}.jpg",
                         "data": (depth * 255).astype(np.uint8),
                     }
                     gray_i  = {
-                        "file": gray_i_save_dir / image_path.name,
+                        "file": gray_i_save_dir / f"{image_path.stem}.jpg",
                         "data": (depth_i * 255).astype(np.uint8),
                     }
                     color   = {
-                        "file": color_save_dir / image_path.name,
+                        "file": color_save_dir / f"{image_path.stem}.jpg",
                         "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                     }
                     color_i = {
-                        "file": color_i_save_dir / image_path.name,
+                        "file": color_i_save_dir / f"{image_path.stem}.jpg",
                         "data": (cmap(depth_i)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                     }
                     results = []

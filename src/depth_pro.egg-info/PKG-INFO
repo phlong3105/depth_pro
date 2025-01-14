@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: depth_pro
 Version: 0.1
 Summary: Inference/Network/Model code for Apple Depth Pro monocular depth estimation.

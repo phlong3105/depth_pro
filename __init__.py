@@ -9,5 +9,5 @@ interface for loading pre-trained models and performing inference.
 
 from __future__ import annotations
 
-import mon.vision.depth.depth_pro.depth_pro
-from mon.vision.depth.depth_pro.depth_pro import *
+import mon.vision.dtype.depth.depth_pro.depth_pro
+from mon.vision.dtype.depth.depth_pro.depth_pro import *

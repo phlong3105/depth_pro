@@ -10,7 +10,7 @@ project     : ~
 variant     : ~
 fullname    : "depth_pro"
 save_dir    : ~
-weights     : "zoo/vision/depth/depth_pro/depth_pro/pretrained/depth_pro.pt"
+weights     : "zoo/vision/dtype/depth/depth_pro/depth_pro/pretrained/depth_pro.pt"
 device      : 0
 local_rank  : -1
 launcher    : ~

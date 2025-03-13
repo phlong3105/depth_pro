@@ -19,7 +19,7 @@ import torch
 
 from mon import core, nn
 from mon.globals import MODELS, Scheme, ZOO_DIR
-from mon.vision.depth import base
+from mon.vision.dtype.depth import base
 from .src import depth_pro
 
 console       = core.console

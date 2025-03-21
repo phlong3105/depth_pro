@@ -22,35 +22,35 @@ current_dir  = current_file.parents[0]
 
 # region Predict
 
-def predict(args: argparse.Namespace):
-   # Parse args
-    hostname     = args.hostname
-    root         = args.root
-    data         = args.data
-    fullname     = args.fullname
-    save_dir     = args.save_dir
-    weights      = args.weights
-    device       = args.device
-    seed         = args.seed
-    imgsz        = args.imgsz
+def predict(args: dict) -> str:
+    # Parse args
+    hostname     = args["hostname"]
+    root         = args["root"]
+    data         = args["data"]
+    fullname     = args["fullname"]
+    save_dir     = args["save_dir"]
+    weights      = args["weights"]
+    device       = args["device"]
+    seed         = args["seed"]
+    imgsz        = args["imgsz"]
     imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
-    resize       = args.resize
-    epochs       = args.epochs
-    steps        = args.steps
-    benchmark    = args.benchmark
-    save_image   = args.save_image
-    save_debug   = args.save_debug
-    use_fullpath = args.use_fullpath
-    verbose      = args.verbose
-    
+    resize       = args["resize"]
+    epochs       = args["epochs"]
+    steps        = args["steps"]
+    benchmark    = args["benchmark"]
+    save_image   = args["save_image"]
+    save_debug   = args["save_debug"]
+    use_fullpath = args["use_fullpath"]
+    verbose      = args["verbose"]
+
     config                      = depth_pro.depth_pro.DEFAULT_MONODEPTH_CONFIG_DICT
-    config.patch_encoder_preset = args.network.patch_encoder_preset
-    config.image_encoder_preset = args.network.image_encoder_preset
-    config.decoder_features     = args.network.decoder_features
-    config.use_fov_head         = args.network.use_fov_head
-    config.fov_encoder_preset   = args.network.fov_encoder_preset
+    config.patch_encoder_preset = args["network"]["patch_encoder_preset"]
+    config.image_encoder_preset = args["network"]["image_encoder_preset"]
+    config.decoder_features     = args["network"]["decoder_features"]
+    config.use_fov_head         = args["network"]["use_fov_head"]
+    config.fov_encoder_preset   = args["network"]["fov_encoder_preset"]
     config.checkpoint_uri       = weights
-    format                      = args.network.format
+    format                      = args["network"]["format"]
     
     # Start
     console.rule(f"[bold red] {fullname}")

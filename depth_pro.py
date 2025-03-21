@@ -18,7 +18,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, Scheme, Task, ZOO_DIR
 from mon.vision.dtype.depth import base
 from .src import depth_pro
 
@@ -36,20 +36,21 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
     defined in :obj:`mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "depth_pro"
+    name     : str          = "depth_pro"
+    tasks    : list[Task]   = [Task.DEPTH]
     schemes  : list[Scheme] = [Scheme.INFERENCE]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "pretrained": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/depth/depth_pro/depth_pro/pretrained/depth_pro.pt",
+            "path"       : ZOO_DIR / "vision/dtype/depth/depth_pro/depth_pro/pretrained/depth_pro.pt",
             "num_classes": None,
         },
     }
     
     def __init__(
         self,
-        name                : str  = "depth_pro",
         in_channels         : int  = 3,
         patch_encoder_preset: str  = "dinov2l16_384",
         image_encoder_preset: str  = "dinov2l16_384",
@@ -59,23 +60,17 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         weights             : Any  = "pretrained",
         *args, **kwargs
     ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        self.in_channels                 = in_channels or self.in_channels
-        self.config                      = depth_pro.depth_pro.DEFAULT_MONODEPTH_CONFIG_DICT
-        self.config.patch_encoder_preset = patch_encoder_preset
-        self.config.image_encoder_preset = image_encoder_preset
-        self.config.decoder_features     = decoder_features
-        self.config.use_fov_head         = use_fov_head
-        self.config.fov_encoder_preset   = fov_encoder_preset
-        self.config.checkpoint_uri       = self.weights
+        super().__init__(weights=weights, *args, **kwargs)
+        config                      = depth_pro.depth_pro.DEFAULT_MONODEPTH_CONFIG_DICT
+        config.patch_encoder_preset = patch_encoder_preset
+        config.image_encoder_preset = image_encoder_preset
+        config.decoder_features     = decoder_features
+        config.use_fov_head         = use_fov_head
+        config.fov_encoder_preset   = fov_encoder_preset
+        config.checkpoint_uri       = self.weights
         
         # Load model and preprocessing transform
-        self.model, self.transform = depth_pro.create_model_and_transforms(config=self.config)
+        self.model, self.transform = depth_pro.create_model_and_transforms(config=config)
         self.model.eval()
         
         # Load weights
@@ -118,7 +113,8 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         self.assert_outputs(outputs)
         
         # Return
-        outputs["time"] = timer.avg_time
-        return outputs
+        return outputs | {
+            "time": timer.avg_time
+        }
     
 # endregion

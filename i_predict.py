@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-import copy
+from typing import Sequence
 
 import cv2
 import matplotlib
@@ -23,45 +23,44 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+   # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
-    benchmark    = False  # args.benchmark
+    epochs       = args.epochs
+    steps        = args.steps
+    benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    format       = args.format
+    verbose      = args.verbose
     
     config                      = depth_pro.depth_pro.DEFAULT_MONODEPTH_CONFIG_DICT
-    config.patch_encoder_preset = args.patch_encoder_preset
-    config.image_encoder_preset = args.image_encoder_preset
-    config.decoder_features     = args.decoder_features
-    config.use_fov_head         = args.use_fov_head
-    config.fov_encoder_preset   = args.fov_encoder_preset
+    config.patch_encoder_preset = args.network.patch_encoder_preset
+    config.image_encoder_preset = args.network.image_encoder_preset
+    config.decoder_features     = args.network.decoder_features
+    config.use_fov_head         = args.network.use_fov_head
+    config.fov_encoder_preset   = args.network.fov_encoder_preset
     config.checkpoint_uri       = weights
+    format                      = args.network.format
     
-    # Model
-    model, transform = depth_pro.create_model_and_transforms(config=config, device=device)
-    model.eval()
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(model),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 100,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
-        console.log(f"Time   = {avg_time:.4f}")
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -73,9 +72,19 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    model, transform = depth_pro.create_model_and_transforms(config=config, device=device)
+    model.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
+    
     # Predicting
-    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     timer = mon.Timer()
+    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     with torch.no_grad():
         with mon.get_progress_bar() as pbar:
             for i, datapoint in pbar.track(
@@ -144,9 +153,9 @@ def predict(args: argparse.Namespace):
                         output      = result["data"]
                         output_path.parent.mkdir(parents=True, exist_ok=True)
                         cv2.imwrite(str(output_path), output)
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

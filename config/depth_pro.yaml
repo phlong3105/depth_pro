@@ -27,7 +27,7 @@ use_fullname: False
 exist_ok    : False
 verbose     : True
 
-# Model Specific
+# Misc
 patch_encoder_preset: "dinov2l16_384"
 image_encoder_preset: "dinov2l16_384"
 decoder_features    : 256

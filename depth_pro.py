@@ -83,9 +83,8 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x       = datapoint.get("image")
-        f_px    = datapoint.get("f_px")
+        x       = datapoint["image"]
+        f_px    = datapoint["f_px"]
         outputs = self.model.infer(x, f_px=f_px)
         return {
             "focallength_px": outputs["focallength_px"],
@@ -94,8 +93,7 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
     
     def infer(self, datapoint : dict, *args, **kwargs) -> dict:
         # Pre-processing
-        self.assert_datapoint(datapoint)
-        meta               = datapoint.get("meta")
+        meta               = datapoint["meta"]
         image_path         = core.Path(meta["path"])
         image, _, f_px     = depth_pro.load_rgb(str(image_path))
         image              = self.transform(image)
@@ -110,7 +108,6 @@ class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
         timer.tick()
         outputs = self.forward(datapoint, *args, **kwargs)
         timer.tock()
-        self.assert_outputs(outputs)
         
         # Return
         return outputs | {

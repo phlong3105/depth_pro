@@ -93,7 +93,7 @@ def predict(args: dict) -> str:
                 description = f"[bright_yellow] Predicting"
             ):
                 # Pre-process
-                meta           = datapoint.get("meta")
+                meta           = datapoint["meta"]
                 image_path     = mon.Path(meta["path"])
                 image, _, f_px = depth_pro.load_rgb(str(image_path))
                 image          = transform(image)

@@ -18,7 +18,7 @@ from typing import Any
 import torch
 
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task, ZOO_DIR
+from mon.globals import MODELS, LType, Task, ZOO_DIR
 from mon.vision.dtype.depth import base
 from .src import depth_pro
 
@@ -32,14 +32,14 @@ current_dir   = current_file.parents[0]
 
 @MODELS.register(name="depth_pro", arch="depth_pro")
 class DepthPro(nn.ExtraModel, base.DepthEstimationModel):
-    """This class implements a wrapper for :obj:`DepthAnythingV2` models
-    defined in :obj:`mon_extra.vision.depth.depth_anything_v2`.
+    """This class implements a wrapper for `DepthAnythingV2` models
+    defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
     arch     : str          = "depth_pro"
     name     : str          = "depth_pro"
     tasks    : list[Task]   = [Task.DEPTH]
-    schemes  : list[Scheme] = [Scheme.INFERENCE]
+    ltypes   : list[LType]  = [LType.INFERENCE]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {
         "pretrained": {

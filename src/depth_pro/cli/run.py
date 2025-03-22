@@ -12,10 +12,9 @@ from pathlib import Path
 import numpy as np
 import PIL.Image
 import torch
+from depth_pro import create_model_and_transforms, load_rgb
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-
-from depth_pro import create_model_and_transforms, load_rgb
 
 LOGGER = logging.getLogger(__name__)
 

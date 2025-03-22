@@ -10,17 +10,17 @@ from typing import Mapping, Optional, Tuple, Union
 import torch
 from torch import nn
 from torchvision.transforms import (
-    Compose,
-    ConvertImageDtype,
-    Lambda,
-    Normalize,
-    ToTensor,
+	Compose,
+	ConvertImageDtype,
+	Lambda,
+	Normalize,
+	ToTensor,
 )
 
 from .network.decoder import MultiresConvDecoder
 from .network.encoder import DepthProEncoder
 from .network.fov import FOVNetwork
-from .network.vit_factory import VIT_CONFIG_DICT, ViTPreset, create_vit
+from .network.vit_factory import create_vit, VIT_CONFIG_DICT, ViTPreset
 
 
 @dataclass

@@ -14,10 +14,10 @@ import torch
 import torch.nn as nn
 
 from .vit import (
-    forward_features_eva_fixed,
-    make_vit_b16_backbone,
-    resize_patch_embed,
-    resize_vit,
+	forward_features_eva_fixed,
+	make_vit_b16_backbone,
+	resize_patch_embed,
+	resize_vit,
 )
 
 LOGGER = logging.getLogger(__name__)

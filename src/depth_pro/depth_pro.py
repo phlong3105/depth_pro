@@ -228,7 +228,7 @@ class DepthPro(nn.Module):
 
         """
         _, _, H, W = x.shape
-        assert H == self.img_size and W == self.img_size, f"Input size must be {self.img_size}x{self.img_size}, but got {H}x{W}."
+        assert H == self.img_size and W == self.img_size, f"Input size must be {self.img_size}x{self.img_size}, got {H}x{W}."
 
         encodings = self.encoder(x)
         features, features_0 = self.decoder(encodings)
